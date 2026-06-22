@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoadFit Pro</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">LF</div>
+          <div>
+            <h1>LoadFit Pro</h1>
+            <p>Cyber load scanner</p>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Planner views">
+          <button class="tab active" data-panel="plannerPanel" type="button">
+            <span>Plan</span>
+          </button>
+          <button class="tab" data-panel="fleetPanel" type="button">
+            <span>Fleet</span>
+          </button>
+          <button class="tab" data-panel="historyPanel" type="button">
+            <span>History</span>
+          </button>
+        </nav>
+
+        <div class="quick-stats">
+          <div>
+            <span id="totalBoxesStat">0</span>
+            <small>Boxes</small>
+          </div>
+          <div>
+            <span id="totalVolumeStat">0</span>
+            <small>m3</small>
+          </div>
+          <div>
+            <span id="totalWeightStat">0</span>
+            <small>kg</small>
+          </div>
+        </div>
+
+        <div class="side-note">
+          <strong>Auto scanner</strong>
+          <p>Enter box size and quantity. The app finds the smallest vehicle that can take the load.</p>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="panel active" id="plannerPanel">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Neon cargo planner</p>
+              <h2>Scan boxes, pick the vehicle</h2>
+            </div>
+            <div class="top-actions">
+              <button class="icon-button" id="saveScenarioBtn" type="button" title="Save scenario">Save</button>
+              <button class="icon-button" id="exportBtn" type="button" title="Export report">Export</button>
+            </div>
+          </header>
+
+          <section class="grid-two">
+            <form class="tool-surface" id="boxForm">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Step 1</p>
+                  <h3 id="formTitle">Enter box details</h3>
+                </div>
+                <div class="button-pair">
+                  <button class="ghost-button" id="cancelEditBtn" type="button">Cancel edit</button>
+                  <button class="ghost-button" id="clearBoxesBtn" type="button">Clear</button>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Box name optional
+                  <input id="boxName" maxlength="24" placeholder="Carton A" type="text" />
+                </label>
+                <label>
+                  Quantity
+                  <input id="boxQty" min="1" step="1" type="number" placeholder="Example: 20" />
+                </label>
+                <label>
+                  Length
+                  <input id="boxLength" min="1" step="0.1" type="number" placeholder="cm" />
+                </label>
+                <label>
+                  Width
+                  <input id="boxWidth" min="1" step="0.1" type="number" placeholder="cm" />
+                </label>
+                <label>
+                  Height
+                  <input id="boxHeight" min="1" step="0.1" type="number" placeholder="cm" />
+                </label>
+                <label>
+                  Weight / box
+                  <input id="boxWeight" min="0" step="0.1" type="number" placeholder="kg" />
+                </label>
+              </div>
+
+              <div class="control-row">
+                <label class="select-wrap">
+                  Unit
+                  <select id="unitSelect">
+                    <option value="cm">cm / kg</option>
+                    <option value="inch">inch / kg</option>
+                  </select>
+                </label>
+                <label class="toggle">
+                  <input id="stackableToggle" checked type="checkbox" />
+                  <span>Stackable</span>
+                </label>
+              </div>
+
+              <button class="primary-button" id="submitBoxBtn" type="submit">Add this box</button>
+            </form>
+
+            <section class="tool-surface">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Step 2</p>
+                  <h3>Check one vehicle</h3>
+                </div>
+                <label class="toggle compact">
+                  <input id="allowRotate" checked type="checkbox" />
+                  <span>Allow rotation</span>
+                </label>
+              </div>
+
+              <label class="manual-select-card">
+                Vehicle
+                <select id="manualVehicleSelect"></select>
+              </label>
+
+              <div class="fit-card" id="selectedFitCard">
+                <div class="fit-badge">Ready</div>
+                <h4>Add boxes to begin</h4>
+                <p>Recommendations will appear after cargo is entered.</p>
+              </div>
+            </section>
+          </section>
+
+          <section class="cargo-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Cargo manifest</p>
+                <h3>Boxes added</h3>
+              </div>
+              <span class="pill">Click any box to edit</span>
+            </div>
+            <div class="cargo-list" id="cargoList"></div>
+          </section>
+
+          <section class="recommendations">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Step 3</p>
+                <h3>Best vehicle options</h3>
+              </div>
+              <span class="pill" id="recommendationHint">Waiting for cargo</span>
+            </div>
+            <div class="vehicle-results" id="vehicleResults"></div>
+          </section>
+
+          <section class="visual-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Load map</p>
+                <h3>Floor and capacity view</h3>
+              </div>
+              <div class="metric-strip">
+                <span id="volumeUse">0%</span>
+                <span id="weightUse">0%</span>
+              </div>
+            </div>
+            <canvas id="loadCanvas" width="1100" height="520" aria-label="Vehicle load visualisation"></canvas>
+            <div class="legend" id="legend"></div>
+          </section>
+        </section>
+
+        <section class="panel" id="fleetPanel">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Fleet library</p>
+              <h2>More vehicles for checking</h2>
+            </div>
+          </header>
+          <div class="fleet-grid" id="fleetGrid"></div>
+        </section>
+
+        <section class="panel" id="historyPanel">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Saved work</p>
+              <h2>Scenarios</h2>
+            </div>
+            <button class="ghost-button" id="clearHistoryBtn" type="button">Clear history</button>
+          </header>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="emptyTemplate">
+      <div class="empty-state">
+        <strong>No cargo yet</strong>
+        <p>Add your first box to scan matching vehicles.</p>
+      </div>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
